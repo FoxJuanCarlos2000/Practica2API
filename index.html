@@ -1,0 +1,119 @@
+<style>
+
+    [v-cloak]{
+        display: none;
+    }
+    .container{
+        justify-content: center;
+        display: flex;
+        flex-flow: column;
+    }
+    select{
+        font-size: large;
+        margin-left: 10px;
+    }
+    .countries-list{
+        display: table;
+    }
+    .countries-list>{
+        display: block;
+        margin-bottom: 5px;
+        margin-top: 5px;
+    }
+
+    .country, .container{
+        display: flex;
+        align-items: center;
+    }
+    .flag{
+        height: 30px;
+        width: 40px;
+        margin-right: 10px;
+    }
+
+</style>
+
+<div id="app">
+    <div class="container">
+        <div>
+            <label for="lenguaje">Selecciona</label>
+            <select id="languages" v-model="selectedLanguageCode" @change="getCountries()">
+                <option :value="language.code" v-for="(language,key) of languages" :key="key">
+                {{language.name}}</option>
+                </select>
+                </div>
+
+                <div>
+                    <span v-if="loading">Loading</span>
+                    <div class="countries-list" v-else>
+                        <div v-for="(country, key) of countries" :key="key" class="country">
+                          <center>
+                          <TABLE BORDER>
+                            <TR>
+                              <TH colspan="4">CONSUMO DE API</TH> 
+                            </TR>
+                            <TR>
+                              <TH>BANDERA</TH> 
+                              <TH>PAIS</TH> 
+                              <TH>REGION</TH> 
+                              <TH>LATITUD Y LONGITUD</TH>
+                            </TR>
+                            <TR>
+                              <TD><img class="flag" :src="country.flag"></TD> 
+                              <TD>{{country.name}}</TD> 
+                              <TD>{{country.region}}</TD> 
+                              <TD>{{country.latlng}}</TD>
+                            </TR>
+                          </TABLE><br>	
+                        </center>
+                        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+        
+    <script src="https://unpkg.com/vue@next"></script>
+    <script type="text/javascript">
+        const fetchApiApp = {
+        data: () => ({
+          languages: [
+            {code: 'en', name: 'English'},
+            {code: 'fr', name: 'French'},
+            {code: 'de', name: 'German'},
+            {code: 'pt', name: 'Portugal'},
+            {code: 'es', name: 'Spanish'},
+            {code: 'sw', name: 'Swahili'}
+          ],
+     
+  countries: '',
+          selectedLanguageCode: '',
+          loading: false
+        }),
+        methods: {
+          getCountries() {
+            this.loading = true;
+            fetch(`https://restcountries.eu/rest/v2/lang/${this.selectedLanguageCode}`)
+            .then(response => {
+                if(response.ok){
+                  return response.json()
+                } else {
+                  throw new Error('???' + (response.status ? ` seen a ${response.status}` : ''))
+                }
+              })
+            
+            .then(response => {
+              this.loading = false;
+              this.countries = response
+            })
+            .catch(err => {
+              console.log(err.message || err);
+              this.loading = false
+            })
+          }
+        },
+      };
+  
+      Vue.createApp(fetchApiApp).mount('#app')
+  
+    </script>
